@@ -29,7 +29,7 @@ const Page = db.define('page', {
 }, {
   getterMethods: {
     route(){
-      return this.urlTitle + '/wiki/'
+      return this.urlTitle
     }
   },
   }
@@ -64,6 +64,8 @@ const User = db.define('user', {
     }
   }
 });
+
+Page.belongsTo(User, { as: 'author'})
 
 module.exports = {
   Page: Page,

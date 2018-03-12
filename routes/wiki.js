@@ -6,17 +6,34 @@ const User = models.User;
 
 //no need to write wiki here as index.js has router.use ('/wiki')
 router.get('/', function(req, res) {
-  res.redirect('/');
+  Page.findAll()
+  .then(function(pages) {
+    res.render('index', {pages: pages});
+  })
 });
 
-router.post('/', function(req, res) {
-  // res.json(req.body)
-  const page = Page.build({
-    title: req.body.title,
-    content: req.body.pageContent
-  });
-  page.save();
-  res.json(req.body);
+router.post('/', function(req, res, next) {
+  User.findOrCreate({
+    where: {
+      name: req.body.name,
+      email: req.body.email
+    }
+  })
+  .then(function(values){
+    const user = values[0];
+    console.log(user);
+    const page = Page.build({
+      title: req.body.title,
+      content: req.body.pageContent,
+    });
+    return page.save().then(function(page) {
+      return page.setAuthor(user);
+    })
+  })
+  .then(function(page){
+    res.redirect(page.route);
+  })
+  .catch(next)
 });
 
 router.get('/add', (req, res) =>
@@ -29,7 +46,7 @@ router.get('/:urlTitle', function(req, res, next) {
     where: {urlTitle: reqTitle}
   })
   .then(function(foundPage) {
-    res.json(foundPage);
+    res.render('wikipage', {title: foundPage.title, content: foundPage.content });
   })
   .catch(next);
 })

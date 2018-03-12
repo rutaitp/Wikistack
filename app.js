@@ -33,7 +33,7 @@ app.get('/', function(req, res, next) {
 });
 
 //sync db up with ORM & start the server
-models.db.sync({force: true})
+models.db.sync({force: false})
 .then(function () {
     console.log('All tables created!');
     app.listen(3000, function () {
