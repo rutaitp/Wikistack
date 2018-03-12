@@ -4,18 +4,19 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const nunjucks = require('nunjucks');
-const routes = require('./routes');
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime');
 const bodyParser = require('body-parser');
 const models = require('./models');
+const routes = require('./routes');
 
 // logging middleware
 app.use(morgan('dev'));
 
 //serve up static files from a public folder
 app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, '/node_modules')));
 
 // body parsing middleware
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
@@ -31,6 +32,12 @@ app.engine('html', nunjucks.render); // when res.render works with html files, h
 app.get('/', function(req, res, next) {
   res.render('index');
 });
+
+// //test if error handling works
+// app.use(function(err, req, res, next){
+//     console.error(err);
+//     res.status(500).send(err.message);
+// });
 
 //sync db up with ORM & start the server
 models.db.sync({force: false})

@@ -29,9 +29,9 @@ const Page = db.define('page', {
 }, {
   getterMethods: {
     route(){
-      return this.urlTitle
+      return "/wiki/" + this.urlTitle;
     }
-  },
+  }
   }
 );
 
@@ -39,6 +39,7 @@ Page.beforeValidate(function(page) {
   page.urlTitle = generateUrlTitle(page.title);
 })
 
+//function to get a proper url
 function generateUrlTitle(title) {
   if (title) {
     return title.replace(/\s+/g, '_').replace(/\W/g, '');
@@ -59,13 +60,14 @@ const User = db.define('user', {
   email: {
     type: Sequelize.STRING,
     allowNull: false,
+    unique: true,
     validate: {
       isEmail: true
     }
   }
 });
 
-Page.belongsTo(User, { as: 'author'})
+Page.belongsTo(User, { as: 'author'});
 
 module.exports = {
   Page: Page,
