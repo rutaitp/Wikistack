@@ -4,11 +4,12 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const nunjucks = require('nunjucks');
-//const makesRouter = require('./routes');
+const routes = require('./routes');
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime');
 const bodyParser = require('body-parser');
+const models = require('./models');
 
 // logging middleware
 app.use(morgan('dev'));
@@ -20,11 +21,7 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
 
-// start the server
-var server = app.listen(3000, function(){
-  console.log('listening on port 3000');
-});
-
+app.use('/', routes);
 
 // templating boilerplate setup
 const env = nunjucks.configure('views', {noCache: true})
@@ -34,3 +31,13 @@ app.engine('html', nunjucks.render); // when res.render works with html files, h
 app.get('/', function(req, res, next) {
   res.render('index');
 });
+
+//sync db up with ORM & start the server
+models.db.sync({force: true})
+.then(function () {
+    console.log('All tables created!');
+    app.listen(3000, function () {
+        console.log('Server is listening on port 3000!');
+    });
+})
+.catch(console.error.bind(console));
